@@ -1,6 +1,6 @@
-from model.base import Model
-from data_transform.one_hot_encoder import OneHotEncoder
-from classifier.nn import Perceptron
+from text_classifier.model.base import Model
+from text_classifier.data_transform.one_hot_encoder import OneHotEncoder
+from text_classifier.classifier.nn import Perceptron
 
 import tensorflow as tf
 import numpy as np
@@ -20,13 +20,13 @@ class NeuralNetwork(Model):
     def _get_treated_data(self, train_data, train_target, test_data, test_target):
         """ """
         target_classes = list(set(train_target + test_target))
-        encoder = OneHotEncoder(train_data, test_data, target_classes)
-        self.train_data = encoder.transform_input(train_data)
-        self.test_data = encoder.transform_input(test_data)
-        self.train_target = encoder.transform_output(train_target)
-        self.test_target = encoder.transform_output(test_target)
-        self.vocabulary_size = encoder.get_vocab_length()
-        self.target_classes = encoder.target_classes
+        self.encoder = OneHotEncoder(train_data, test_data, target_classes)
+        self.train_data = self.encoder.transform_input(train_data)
+        self.test_data = self.encoder.transform_input(test_data)
+        self.train_target = self.encoder.transform_output(train_target)
+        self.test_target = self.encoder.transform_output(test_target)
+        self.vocabulary_size = self.encoder.get_vocab_length()
+        self.target_classes = self.encoder.target_classes
 
     
     def _get_classifier(self):
@@ -89,6 +89,14 @@ class NeuralNetwork(Model):
                 {self.input_tensor: batch_x_test, self.output_tensor: batch_y_test},
                 session=self.tf_session
             )
+        )
+    
+    def predict(self, input_data):
+        """ """
+        treated_data = self.encoder.transform_input(input_data)
+        return self.tf_session.run(
+            tf.argmax(self.classifier.predict(self.input_tensor), 1),
+            feed_dict= {self.input_tensor: treated_data}
         )
     
     def _get_batch(self, data, target, iteration, batch_size):

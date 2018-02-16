@@ -1,4 +1,4 @@
-from classifier.base_class import Classifier
+from text_classifier.classifier.base_class import Classifier
 
 import tensorflow as tf
 

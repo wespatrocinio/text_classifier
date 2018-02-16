@@ -1,0 +1,1 @@
+from text_classifier.model.neural_network import NeuralNetwork
