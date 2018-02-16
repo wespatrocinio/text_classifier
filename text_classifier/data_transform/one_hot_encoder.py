@@ -9,13 +9,14 @@ nltk.download('stopwords')
 class OneHotEncoder(object):
     """ Class dedicated to transform text data into one-hot encoding feature set. """
 
-    def __init__(self, raw_data, target_classes):
+    def __init__(self, raw_train_data, raw_test_data, target_classes):
         """
         Construct the data transformation object.
 
         raw_data    A list with all text documents that will be used to build the vector space (train + test data).
         """
-        self.raw_data = raw_data
+        self.raw_train_data = raw_train_data
+        self.raw_test_data = raw_test_data
         self.target_classes = target_classes
         self._get_vocabulary()
         self._get_word_2_index()
@@ -30,7 +31,8 @@ class OneHotEncoder(object):
     def _get_vocabulary(self):
         """ Split a raw text into a Counter indexed by word. """
         self.vocabulary = Counter()
-        for text in self.raw_data:
+        raw_data = self.raw_train_data + self.raw_test_data
+        for text in raw_data:
             for token in self._get_tokens(text):
                 self.vocabulary[token] += 1
     

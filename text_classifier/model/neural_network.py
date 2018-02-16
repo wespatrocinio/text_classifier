@@ -1,4 +1,5 @@
 from model.base import Model
+from data_transform.one_hot_encoder import OneHotEncoder
 from classifier.nn import Perceptron
 
 import tensorflow as tf
@@ -16,11 +17,23 @@ class NeuralNetwork(Model):
             tf.float32,
             [None, self.parameters.get('output_size')], name="output")
     
+    def _get_treated_data(self, train_data, train_target, test_data, test_target):
+        """ """
+        target_classes = list(set(train_target + test_target))
+        encoder = OneHotEncoder(train_data, test_data, target_classes)
+        self.train_data = encoder.transform_input(train_data)
+        self.test_data = encoder.transform_input(test_data)
+        self.train_target = encoder.transform_output(train_target)
+        self.test_target = encoder.transform_output(test_target)
+        self.vocabulary_size = encoder.get_vocab_length()
+        self.target_classes = encoder.target_classes
+
+    
     def _get_classifier(self):
         """ """
         self.classifier = Perceptron(
-            self.parameters.get('input_size'),
-            self.parameters.get('output_size'),
+            self.vocabulary_size,
+            len(self.target_classes),
             self.parameters.get('n_hidden_layers'),
             self.parameters.get('size_hidden_layers')
         )
