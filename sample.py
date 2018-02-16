@@ -49,7 +49,6 @@ if __name__ == '__main__':
     model.train()
     model.test()
 
-
     input_text = "Close your eyes and I kiss you. Tomorrow I'll miss you"
     prediction = model.predict([input_text])
     print(prediction)
